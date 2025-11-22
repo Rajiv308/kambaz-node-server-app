@@ -11,13 +11,34 @@ import "dotenv/config";
 import session from "express-session";
 import EnrollmentsRoutes from "./Kambaz/Enrollments/routes.js";
 const app = express();
+// app.use(
+//   cors({
+//     credentials: true,
+//     origin:
+//       process.env.CLIENT_URL ||
+//       "http://localhost:3000" ||
+//       "https://kambaz-next-js-fa25-mon-git-a5-rajiv308s-projects.vercel.app/",
+//   })
+// );
+const allowedOrigins = process.env.CLIENT_URL
+  ? process.env.CLIENT_URL.split(",")
+      .map((o) => o.trim())
+      .filter(Boolean)
+  : [
+      "http://localhost:3000",
+      "http://localhost:3006",
+      "https://kambaz-next-js-fa25-mon-git-a5-rajiv308s-projects.vercel.app",
+    ];
 app.use(
   cors({
     credentials: true,
-    origin:
-      process.env.CLIENT_URL ||
-      "http://localhost:3000" ||
-      "https://kambaz-next-js-fa25-mon-git-a5-rajiv308s-projects.vercel.app/",
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
   })
 );
 const sessionOptions = {
