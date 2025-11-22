@@ -27,6 +27,7 @@ const allowedOrigins = process.env.CLIENT_URL
   : [
       "http://localhost:3000",
       "http://localhost:3006",
+      "https://kambaz-next-js-fa25-mon-ecru.vercel.app",
       "https://kambaz-next-js-fa25-mon-git-a5-rajiv308s-projects.vercel.app",
     ];
 app.use(
