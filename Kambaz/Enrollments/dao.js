@@ -1,47 +1,77 @@
 import { v4 as uuidv4 } from "uuid";
-export default function EnrollmentsDao(db) {
+import model from "./model.js";
+export default function EnrollmentsDao() {
+  async function findCoursesForUser(userId) {
+    const enrollments = await model.find({ user: userId }).populate("course");
+    return enrollments.map((enrollment) => enrollment.course);
+  }
+  async function findUsersForCourse(courseId) {
+    const enrollments = await model.find({ course: courseId }).populate("user");
+    return enrollments.map((enrollment) => enrollment.user);
+  }
   function enrollUserInCourse(userId, courseId) {
-    const { enrollments } = db;
-    const exists = enrollments.some(
-      (e) => e.user === userId && e.course === courseId
-    );
-    if (!exists) {
-      const newEnrollment = { _id: uuidv4(), user: userId, course: courseId };
-      enrollments.push(newEnrollment);
-      return newEnrollment;
-    }
-    return null;
+    return model.create({
+      user: userId,
+      course: courseId,
+      _id: `${userId}-${courseId}`,
+    });
+  }
+  function unenrollUserFromCourse(user, course) {
+    return model.deleteOne({ user, course });
+  }
+  function unenrollUserFromAllCourses(userId) {
+    return model.deleteMany({ user: userId });
+  }
+  function unenrollAllUsersFromCourse(courseId) {
+    return model.deleteMany({ course: courseId });
   }
 
-  function unenrollUserFromCourse(userId, courseId) {
-    const { enrollments } = db;
-    const index = enrollments.findIndex(
-      (e) => e.user === userId && e.course === courseId
-    );
-    if (index !== -1) {
-      const removed = enrollments.splice(index, 1)[0];
-      return removed;
-    }
-    return null;
+  async function findEnrolledUsersByRole(courseId, role) {
+    const enrollments = await model.find({ course: courseId }).populate({
+      path: "user",
+      match: { role: role },
+    });
+
+    return enrollments.map((e) => e.user).filter((u) => u !== null);
   }
 
-  function getEnrollmentsForUser(userId) {
-    const { enrollments } = db;
-    return enrollments.filter((e) => e.user === userId);
-  }
+  async function findEnrolledUsersByPartialName(courseId, name) {
+    const regex = new RegExp(name, "i");
 
-  function getUsersForCourse(courseId) {
-    const { enrollments, users } = db;
-    return enrollments
-      .filter((e) => e.course === courseId)
-      .map((e) => users.find((u) => u._id === e.user))
-      .filter(Boolean);
+    const result = await model.aggregate([
+      { $match: { course: courseId } },
+      {
+        $lookup: {
+          from: "users",
+          localField: "user",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
+      { $unwind: "$user" },
+      {
+        $match: {
+          $or: [
+            { "user.firstName": regex },
+            { "user.lastName": regex },
+            { "user.username": regex },
+          ],
+        },
+      },
+      { $replaceRoot: { newRoot: "$user" } },
+    ]);
+
+    return result;
   }
 
   return {
+    findCoursesForUser,
+    findUsersForCourse,
     enrollUserInCourse,
     unenrollUserFromCourse,
-    getEnrollmentsForUser,
-    getUsersForCourse,
+    unenrollAllUsersFromCourse,
+    unenrollUserFromAllCourses,
+    findEnrolledUsersByRole,
+    findEnrolledUsersByPartialName,
   };
 }
