@@ -4,7 +4,6 @@ export default function CourseRoutes(app) {
   const dao = CoursesDao();
   const enrollmentsDao = EnrollmentsDao();
   const findAllCourses = async (req, res) => {
-    console.log("Fetching all courses");
     const courses = await dao.findAllCourses();
     res.send(courses);
   };

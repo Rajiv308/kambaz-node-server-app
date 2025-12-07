@@ -11,7 +11,6 @@ export default function AssignmentsDao() {
   }
 
   function createAssignment(assignment) {
-    console.log("Creating assignment:", assignment);
     const newAssignment = {
       _id: uuidv4(),
       ...assignment,

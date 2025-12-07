@@ -8,7 +8,6 @@ export default function UserRoutes(app) {
   };
 
   const deleteUser = async (req, res) => {
-    console.log("Deleting user with ID: " + req.params.userId);
     const userId = req.params.userId;
     const success = await dao.deleteUser(userId);
     if (success) {
@@ -69,8 +68,6 @@ export default function UserRoutes(app) {
   const signin = async (req, res) => {
     const { username, password } = req.body;
     const currentUser = await dao.findUserByCredentials(username, password);
-    console.log("Signin attempt for user:", username);
-    console.log("Authentication result:", currentUser);
     if (currentUser) {
       req.session["currentUser"] = currentUser;
       res.json(currentUser);

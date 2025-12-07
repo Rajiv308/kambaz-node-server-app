@@ -11,19 +11,14 @@ import "dotenv/config";
 import session from "express-session";
 import EnrollmentsRoutes from "./Kambaz/Enrollments/routes.js";
 import mongoose from "mongoose";
+import PazzaFolderRoutes from "./Kambaz/Pazza/Folders/routes.js";
+import PazzaPostRoutes from "./Kambaz/Pazza/Posts/routes.js";
+import PazzaAnswerRoutes from "./Kambaz/Pazza/Answers/routes.js";
+import PazzaFollowupRoutes from "./Kambaz/Pazza/Followups/routes.js";
 const CONNECTION_STRING =
   process.env.DATABASE_CONNECTION_STRING || "mongodb://127.0.0.1:27017/kambaz";
 mongoose.connect(CONNECTION_STRING);
 const app = express();
-// app.use(
-//   cors({
-//     credentials: true,
-//     origin:
-//       process.env.CLIENT_URL ||
-//       "http://localhost:3000" ||
-//       "https://kambaz-next-js-fa25-mon-git-a5-rajiv308s-projects.vercel.app/",
-//   })
-// );
 const allowedOrigins = process.env.CLIENT_URL
   ? process.env.CLIENT_URL.split(",")
       .map((o) => o.trim())
@@ -66,6 +61,10 @@ CourseRoutes(app);
 ModulesRoutes(app);
 AssignmentsRoutes(app);
 EnrollmentsRoutes(app);
+PazzaFolderRoutes(app);
+PazzaPostRoutes(app);
+PazzaAnswerRoutes(app);
+PazzaFollowupRoutes(app);
 Lab5(app);
 Hello(app);
 app.listen(process.env.PORT || 4000);

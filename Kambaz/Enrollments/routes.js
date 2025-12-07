@@ -5,7 +5,6 @@ export default function EnrollmentsRoutes(app) {
 
   const enrollUser = async (req, res) => {
     let { userId, courseId } = req.params;
-    console.log("Enroll request for user:", userId, "in course:", courseId);
     if (userId === "current") {
       const currentUser = req.session["currentUser"];
       userId = currentUser._id;

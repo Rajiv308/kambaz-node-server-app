@@ -13,7 +13,6 @@ export default function AssignmentsRoutes(app) {
     const { courseId } = req.params;
     const assignment = { ...req.body, course: courseId };
     const newAssignment = await dao.createAssignment(assignment);
-    console.log(newAssignment);
     res.json(newAssignment);
   };
 
