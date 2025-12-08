@@ -58,16 +58,22 @@ export default function PazzaFollowupRoutes(app) {
         return res.status(404).json({ error: "Followup not found" });
       }
 
-      if (
-        followup.author !== currentUser._id &&
-        currentUser.role !== "FACULTY"
-      ) {
+      const isFaculty =
+        currentUser.role === "FACULTY" || currentUser.role === "ADMIN";
+      const isTA = currentUser.role === "ASSISTANT";
+      if (followup.author !== currentUser._id && !isFaculty && !isTA) {
         return res
           .status(403)
           .json({ error: "Not authorized to edit this followup" });
       }
 
-      const updated = await dao.updateFollowup(followupId, req.body);
+      const updates = {
+        ...req.body,
+        lastEditedBy: currentUser._id,
+        lastEditedByName: `${currentUser.firstName} ${currentUser.lastName}`,
+      };
+
+      const updated = await dao.updateFollowup(followupId, updates);
       res.json(updated);
     } catch (error) {
       console.error("Error updating followup:", error);
@@ -164,18 +170,27 @@ export default function PazzaFollowupRoutes(app) {
         return res.status(404).json({ error: "Followup not found" });
       }
 
-      const reply = followup.replies.find((r) => r._id === replyId);
+      const reply = followup.replies.id(replyId);
       if (!reply) {
         return res.status(404).json({ error: "Reply not found" });
       }
 
-      if (reply.author !== currentUser._id && currentUser.role !== "FACULTY") {
+      const isFaculty =
+        currentUser.role === "FACULTY" || currentUser.role === "ADMIN";
+      const isTA = currentUser.role === "ASSISTANT";
+      if (reply.author !== currentUser._id && !isFaculty && !isTA) {
         return res
           .status(403)
           .json({ error: "Not authorized to edit this reply" });
       }
 
-      const updated = await dao.updateReply(followupId, replyId, req.body);
+      const updates = {
+        content: req.body.content,
+        lastEditedBy: currentUser._id,
+        lastEditedByName: `${currentUser.firstName} ${currentUser.lastName}`,
+      };
+
+      const updated = await dao.updateReply(followupId, replyId, updates);
       res.json(updated);
     } catch (error) {
       console.error("Error updating reply:", error);

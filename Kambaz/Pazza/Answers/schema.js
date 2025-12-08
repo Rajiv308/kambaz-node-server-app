@@ -8,7 +8,7 @@ const answerSchema = new mongoose.Schema(
     authorName: { type: String, required: true },
     authorRole: {
       type: String,
-      enum: ["STUDENT", "FACULTY", "ADMIN"],
+      enum: ["STUDENT", "FACULTY", "ADMIN", "ASSISTANT"],
       required: true,
     },
     answerType: {
@@ -17,12 +17,13 @@ const answerSchema = new mongoose.Schema(
       required: true,
     },
     content: { type: String, required: true },
+    likes: { type: Number, default: 0 },
+    lastEditedBy: { type: String },
+    lastEditedByName: { type: String },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },
   },
   { collection: "pazza_answers" }
 );
-
-answerSchema.index({ post: 1, answerType: 1 });
 
 export default answerSchema;

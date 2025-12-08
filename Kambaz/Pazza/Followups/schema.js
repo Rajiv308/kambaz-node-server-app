@@ -6,10 +6,12 @@ const replySchema = new mongoose.Schema({
   authorName: { type: String, required: true },
   authorRole: {
     type: String,
-    enum: ["STUDENT", "FACULTY", "ADMIN"],
+    enum: ["STUDENT", "FACULTY", "ADMIN", "ASSISTANT"],
     required: true,
   },
   content: { type: String, required: true },
+  lastEditedBy: { type: String },
+  lastEditedByName: { type: String },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
 });
@@ -22,18 +24,18 @@ const followupSchema = new mongoose.Schema(
     authorName: { type: String, required: true },
     authorRole: {
       type: String,
-      enum: ["STUDENT", "FACULTY", "ADMIN"],
+      enum: ["STUDENT", "FACULTY", "ADMIN", "ASSISTANT"],
       required: true,
     },
     content: { type: String, required: true },
     resolved: { type: Boolean, default: false },
     replies: [replySchema],
+    lastEditedBy: { type: String },
+    lastEditedByName: { type: String },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },
   },
   { collection: "pazza_followups" }
 );
-
-followupSchema.index({ post: 1, createdAt: 1 });
 
 export default followupSchema;

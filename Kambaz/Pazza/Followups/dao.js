@@ -49,6 +49,10 @@ export const updateReply = async (followupId, replyId, updates) => {
     if (reply) {
       reply.content = updates.content;
       reply.updatedAt = new Date();
+      if (updates.lastEditedBy) {
+        reply.lastEditedBy = updates.lastEditedBy;
+        reply.lastEditedByName = updates.lastEditedByName;
+      }
       followup.updatedAt = new Date();
       await followup.save();
     }

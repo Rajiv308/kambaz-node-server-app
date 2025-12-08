@@ -1,4 +1,5 @@
 import PostModel from "./model.js";
+import { countAnswersByType } from "../Answers/dao.js";
 
 export const findPostsForCourse = async (courseId, userId, userRole) => {
   const isFacultyOrAdmin = userRole === "FACULTY" || userRole === "ADMIN";
@@ -85,6 +86,11 @@ export const deletePost = async (postId) => {
   return PostModel.findByIdAndDelete(postId);
 };
 
+export const findPostIdsByCourse = async (courseId) => {
+  const posts = await PostModel.find({ course: courseId }, { _id: 1 });
+  return posts.map((p) => p._id);
+};
+
 export const incrementViews = async (postId, userId) => {
   const post = await PostModel.findById(postId);
   if (post && !post.viewedBy.includes(userId)) {
@@ -100,11 +106,17 @@ export const getStatistics = async (courseId) => {
 
   const questions = posts.filter((p) => p.postType === "Question");
   const notes = posts.filter((p) => p.postType === "Note");
+  const { studentAnswers, instructorAnswers } = await countAnswersByType(
+    courseId,
+    posts
+  );
 
   return {
     totalPosts: posts.length,
     totalQuestions: questions.length,
     totalNotes: notes.length,
+    studentAnswers: studentAnswers,
+    instructorAnswers: instructorAnswers,
   };
 };
 

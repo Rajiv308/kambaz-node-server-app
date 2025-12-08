@@ -82,13 +82,22 @@ export default function PazzaAnswerRoutes(app) {
         return res.status(404).json({ error: "Answer not found" });
       }
 
-      if (answer.author !== currentUser._id && currentUser.role !== "FACULTY") {
+      const isFaculty =
+        currentUser.role === "FACULTY" || currentUser.role === "ADMIN";
+      const isTA = currentUser.role === "ASSISTANT";
+      if (answer.author !== currentUser._id && !isFaculty && !isTA) {
         return res
           .status(403)
           .json({ error: "Not authorized to edit this answer" });
       }
 
-      const updated = await dao.updateAnswer(answerId, req.body);
+      const updates = {
+        ...req.body,
+        lastEditedBy: currentUser._id,
+        lastEditedByName: `${currentUser.firstName} ${currentUser.lastName}`,
+      };
+
+      const updated = await dao.updateAnswer(answerId, updates);
       res.json(updated);
     } catch (error) {
       console.error("Error updating answer:", error);
